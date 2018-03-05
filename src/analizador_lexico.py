@@ -1,11 +1,10 @@
 import ply.lex as lex
-
-# resultado del analisis
-resultado_lexema = []
+import os
+import codecs
 
 reservada = (
     # Palabras Reservadas
-    'INCLUDE',
+    'FUN',
     'USING',
     'NAMESPACE',
     'STD',
@@ -18,10 +17,64 @@ reservada = (
     'INT',
     'ENDL',
 )
+
+palabrasReservadas = (
+    "OCUQ", 
+    "NOCUQ", 
+    "_Y_", 
+    "_O_", 
+    "NEG" 
+    "REPETPR", 
+    "REPETMQ", 
+    "FIN" 
+    "FUN", 
+    "DEVOL", 
+)
+tiposDeToken = (
+    "IDENTIFICADOR",
+    "PALABRA_RESERVADA",
+    "OPERADOR",
+    "DELIMITADOR",
+    "LITERAL"
+)
+
+tokens = tiposDeToken + (
+    "ENTERO",
+    "CADENA",
+    "NUMERAL",
+    "MENOR_IGUAL",
+    "MAYOR_IGUAL",
+    "IGUAL",
+    "DIFERENTE",
+    "ASIGNACION",
+    "SUMA",
+    "RESTA",
+    "MULTIPLICACION",
+    "DIVISION",
+    "MODULO",
+    "POTENCIA",
+    "AND",
+    "OR",
+    "NOT",
+    "MENOR_QUE",
+    "MAYOR_QUE",
+    "PUNTO_COMA",
+    "COMA",
+    "PUNTO",
+    "PARENTESIS_IZQUIERDO",
+    "PARENTESIS_DERECHO",
+    "CORCHETE_IZQUIERDO",
+    "CORCHETE_DERECHO",
+    "LLAVE_IZQUIERDA",
+    "LLAVE_DERECHA",
+    "SLASH",
+    "BACKSLASH"
+)
+"""
 tokens = reservada + (
     'IDENTIFICADOR',
     'ENTERO',
-    'ASIGNAR',
+    'ASIGNACION',
 
     'SUMA',
     'RESTA',
@@ -34,7 +87,7 @@ tokens = reservada + (
    'PLUSPLUS',
 
     #Condiones
-   'SI',
+   'OCUQ',
     'SINO',
     #Ciclos
    'MIENTRAS',
@@ -48,7 +101,7 @@ tokens = reservada + (
     'MAYORQUE',
     'MAYORIGUAL',
     'IGUAL',
-    'DISTINTO',
+    'DIFERENTE',
     # Symbolos
     'NUMERAL',
 
@@ -65,92 +118,42 @@ tokens = reservada + (
     'COMDOB',
     'MAYORDER', #>>
     'MAYORIZQ', #<<
-)
 
-# Reglas de Expresiones Regualres para token de Contexto simple
+    'ID',
+    'KEYWORD',
+    "PALABRA_RESERVADA",
+)
+"""
+t_ASIGNACION = r'::'
 
 t_SUMA = r'\+'
 t_RESTA = r'-'
-t_MINUSMINUS = r'\-\-'
-# t_PUNTO = r'\.'
-t_MULT = r'\*'
-t_DIV = r'/'
+t_MULTIPLICACION = r'\*'
+t_DIVISION = r'/'
 t_MODULO = r'\%'
 t_POTENCIA = r'(\*{2} | \^)'
 
-t_ASIGNAR = r'='
-# Expresiones Logicas
 t_AND = r'\&\&'
 t_OR = r'\|{2}'
 t_NOT = r'\!'
-t_MENORQUE = r'<'
-t_MAYORQUE = r'>'
-t_PUNTOCOMA = ';'
+t_MENOR_QUE = r'<'
+t_MAYOR_QUE = r'>'
+t_PUNTO_COMA = ';'
 t_COMA = r','
-t_PARIZQ = r'\('
-t_PARDER = r'\)'
-t_CORIZQ = r'\['
-t_CORDER = r'\]'
-t_LLAIZQ = r'{'
-t_LLADER = r'}'
-t_COMDOB = r'\"'
+# t_PUNTO = r'\.'
+t_PARENTESIS_IZQUIERDO = r'\('
+t_PARENTESIS_DERECHO = r'\)'
+t_CORCHETE_IZQUIERDO = r'\['
+t_CORCHETE_DERECHO = r'\]'
+t_LLAVE_IZQUIERDA = r'{'
+t_LLAVE_DERECHA = r'}'
+#t_SLASH = r'\/"'
+t_BACKSLASH = r'\"'
 
-
-
-def t_INCLUDE(t):
-    r'include'
-    return t
-
-def t_USING(t):
-    r'using'
-    return t
-
-def t_NAMESPACE(t):
-    r'namespace'
-    return t
-
-def t_STD(t):
-    r'std'
-    return t
-
-def t_COUT(t):
-    r'cout'
-    return t
-
-def t_CIN(t):
-    r'cin'
-    return t
-
-def t_GET(t):
-    r'get'
-    return t
-
-def t_ENDL(t):
-    r'endl'
-    return t
-
-def t_SINO(t):
-    r'else'
-    return t
-
-def t_SI(t):
-    r'if'
-    return t
-
-def t_RETURN(t):
-   r'return'
-   return t
-
-def t_VOID(t):
-   r'void'
-   return t
-
-def t_MIENTRAS(t):
-    r'while'
-    return t
-
-def t_PARA(t):
-    r'for'
+def t_PALABRA_RESERVADA(t):
+    r'[A-Z][A-Z][A-Z]+'
+    if t.value in palabrasReservadas:
+        t.type = 'PALABRA_RESERVADA'
     return t
 
 def t_ENTERO(t):
@@ -160,6 +163,10 @@ def t_ENTERO(t):
 
 def t_IDENTIFICADOR(t):
     r'\w+(_\d\w)*'
+    if t.value.lower() in palabrasReservadas:
+        print("Se encontro problema")
+        t.lexer.skip(1)
+
     return t
 
 def t_CADENA(t):
@@ -170,15 +177,11 @@ def t_NUMERAL(t):
     r'\#'
     return t
 
-def t_PLUSPLUS(t):
-    r'\+\+'
-    return t
-
-def t_MENORIGUAL(t):
+def t_MENOR_IGUAL(t):
     r'<='
     return t
 
-def t_MAYORIGUAL(t):
+def t_MAYOR_IGUAL(t):
     r'>='
     return t
 
@@ -186,29 +189,22 @@ def t_IGUAL(t):
     r'=='
     return t
 
-def t_MAYORDER(t):
-    r'<<'
+def t_DIFERENTE(t):
+    r':-:'
     return t
 
-def t_MAYORIZQ(t):
-    r'>>'
-    return t
-
-def t_DISTINTO(t):
-    r'!='
-    return t
 
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
 
 def t_comments(t):
-    r'/\*(.|\n)*?\*/'
+    r'\*\*\*(.|\n)*?\*\*\*'
     t.lexer.lineno += t.value.count('\n')
     print("Comentario de multiple linea")
 
 def t_comments_ONELine(t):
-     r'\/\/(.)*\n'
+     r'\*\*(.)*\n'
      t.lexer.lineno += 1
      print("Comentario de una linea")
 t_ignore =' \t'
@@ -220,11 +216,10 @@ def t_error( t):
     resultado_lexema.append(estado)
     t.lexer.skip(1)
 
-import os
-import codecs
+
 
 directorio = str(os.getcwd())+"/code/"
-archivo =  'program.unimag'
+archivo =  'test.blur'
 directorio = directorio.replace('src/', '')
 test = directorio+archivo
 print (test)
@@ -252,7 +247,7 @@ def prueba(data):
 
  # instanciamos el analizador lexico
 analizador = lex.lex()
-print(cadena)
+#print(cadena)
 analizador.input(cadena)
 
 if __name__ == '__main__':

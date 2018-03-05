@@ -17,13 +17,13 @@ operator = tipo.Tipo("Operador")
 literal = tipo.Tipo("Literal")
 comment = tipo.Tipo("Comentario")
 
-tokens = [  
+listaTokens = [  
             #Operador de asignaciones
-            token2.Token("::", assignation),
+            #token2.Token("::", assignation),
 
             #Palabras Reservadas
-            token2.Token("_most", keyword),
-            token2.Token("_obt", keyword),
+            token2.Token("most", keyword),
+            token2.Token("obt", keyword),
             token2.Token("ocuq", keyword),
             token2.Token("nocuq", keyword),
             token2.Token("f>", keyword),
@@ -63,6 +63,10 @@ tokens = [
 for token2 in tokens:
     token2.get()
 """
+tokens = []
+for token in tokens :
+    tokens.append(token.getLexema())
+
 t_ignore = " \t"
 t_NOMBRE = r'[>_][a-zA-Z][a-zA-Z0-9_]*'
 
@@ -88,9 +92,7 @@ t_LLAIZQ = r'{'
 t_LLADER = r'}'
 t_COMDOB = r'\"'
 
-tokenList = []
-for token in tokens :
-    tokenList.append(token.getLexema())
+
 
 def t_ID(t):
     r'[>_][a-zA-Z][a-zA-Z0-9_]*'
@@ -125,7 +127,7 @@ def t_comments_ONELine(t):
 
 def t_error(t):
     print ("Caracter invalido ", t.value[0])
-    t.lexer.sikip(1)
+    t.lexer.skip(1)
 
 
 """
