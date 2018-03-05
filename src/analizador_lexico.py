@@ -1,7 +1,7 @@
 import ply.lex as lex
 import os
 import codecs
-
+"""
 reservada = (
     # Palabras Reservadas
     'FUN',
@@ -17,18 +17,18 @@ reservada = (
     'INT',
     'ENDL',
 )
-
+"""
 palabrasReservadas = (
     "OCUQ", 
     "NOCUQ", 
     "_Y_", 
     "_O_", 
-    "NEG" 
+    "NEG", 
     "REPETPR", 
     "REPETMQ", 
-    "FIN" 
+    "FIN", 
     "FUN", 
-    "DEVOL", 
+    "DEVOL"
 )
 tiposDeToken = (
     "IDENTIFICADOR",
@@ -67,8 +67,11 @@ tokens = tiposDeToken + (
     "CORCHETE_DERECHO",
     "LLAVE_IZQUIERDA",
     "LLAVE_DERECHA",
-    "SLASH",
-    "BACKSLASH"
+    "BACKSLASH",
+    "COMILLA_DOBLE",
+    "COMILLA_SIMPLE",
+    "V",
+    "F"
 )
 """
 tokens = reservada + (
@@ -124,6 +127,7 @@ tokens = reservada + (
     "PALABRA_RESERVADA",
 )
 """
+t_ignore =' \t'
 t_ASIGNACION = r'::'
 
 t_SUMA = r'\+'
@@ -140,15 +144,16 @@ t_MENOR_QUE = r'<'
 t_MAYOR_QUE = r'>'
 t_PUNTO_COMA = ';'
 t_COMA = r','
-# t_PUNTO = r'\.'
+t_PUNTO = r'\.'
 t_PARENTESIS_IZQUIERDO = r'\('
 t_PARENTESIS_DERECHO = r'\)'
 t_CORCHETE_IZQUIERDO = r'\['
 t_CORCHETE_DERECHO = r'\]'
 t_LLAVE_IZQUIERDA = r'{'
 t_LLAVE_DERECHA = r'}'
-#t_SLASH = r'\/"'
-t_BACKSLASH = r'\"'
+t_BACKSLASH = r'\\'
+t_COMILLA_SIMPLE = r'\''
+t_COMILLA_DOBLE = r'\"'
 
 def t_PALABRA_RESERVADA(t):
     r'[A-Z][A-Z][A-Z]+'
@@ -163,11 +168,11 @@ def t_ENTERO(t):
 
 def t_IDENTIFICADOR(t):
     r'\w+(_\d\w)*'
-    if t.value.lower() in palabrasReservadas:
-        print("Se encontro problema")
-        t.lexer.skip(1)
-
-    return t
+    #r'[a-zA-Z][a-zA-Z0-9_]*'
+    if t.value.upper() in palabrasReservadas:
+        invalido(t,'Es una palabra reservada')
+    else:
+        return t
 
 def t_CADENA(t):
    r'\"?(\w+ \ *\w*\d* \ *)\"?'
@@ -178,21 +183,20 @@ def t_NUMERAL(t):
     return t
 
 def t_MENOR_IGUAL(t):
-    r'<='
+    r'<::'
     return t
 
 def t_MAYOR_IGUAL(t):
-    r'>='
+    r'>::'
     return t
 
 def t_IGUAL(t):
-    r'=='
+    r':::'
     return t
 
 def t_DIFERENTE(t):
     r':-:'
     return t
-
 
 def t_newline(t):
     r'\n+'
@@ -201,64 +205,39 @@ def t_newline(t):
 def t_comments(t):
     r'\*\*\*(.|\n)*?\*\*\*'
     t.lexer.lineno += t.value.count('\n')
-    print("Comentario de multiple linea")
+    print("Linea %d inicia comentario de multiples lineas"%(t.lineno))
 
 def t_comments_ONELine(t):
      r'\*\*(.)*\n'
      t.lexer.lineno += 1
-     print("Comentario de una linea")
-t_ignore =' \t'
+     print("Linea %d comentario"%(t.lineno))
 
-def t_error( t):
-    global resultado_lexema
-    estado = "** Token no valido en la Linea {:4} Valor {:16} Posicion {:4}".format(str(t.lineno), str(t.value),
-                                                                      str(t.lexpos))
-    resultado_lexema.append(estado)
-    t.lexer.skip(1)
-
+def t_error(t):
+    print("Linea %d -> Token %r invalido." % (t.lineno, t.value) )
+    print("-------------------------------------------------------")
+    t.lexer.skip(1)    
+    
+def invalido(t, arg='Error Indefinido'):
+    print("Linea %d -> Token %r invalido." % (t.lineno, t.value) )
+    if arg : print("Descripcion del error :", arg)
+    print("-------------------------------------------------------")
 
 
 directorio = str(os.getcwd())+"/code/"
-archivo =  'test.blur'
+nombreArchivo =  'test.blur'
 directorio = directorio.replace('src/', '')
-test = directorio+archivo
-print (test)
-fp = codecs.open(test,"r","utf-8")
-cadena = fp.read()
+ruta = directorio+nombreArchivo
+print (ruta)
+fp = codecs.open(ruta,"r","utf-8")
+codigoArchivo = fp.read()
 fp.close()
 
-
-# Prueba de ingreso
-def prueba(data):
-    global resultado_lexema
-
-    analizador = lex.lex()
-    analizador.input(data)
-
-    resultado_lexema.clear()
-    while True:
-        tok = analizador.token()
-        if not tok:
-            break
-        # print("lexema de "+tok.type+" valor "+tok.value+" linea "tok.lineno)
-        estado = "Linea {:4} Tipo {:16} Valor {:16} Posicion {:4}".format(str(tok.lineno),str(tok.type) ,str(tok.value), str(tok.lexpos) )
-        resultado_lexema.append(estado)
-    return resultado_lexema
-
- # instanciamos el analizador lexico
-analizador = lex.lex()
-#print(cadena)
-analizador.input(cadena)
+analizadorLexico = lex.lex()
+#print(codigoArchivo)
+analizadorLexico.input(codigoArchivo)
 
 if __name__ == '__main__':
     while True:
-        """
-        data = input("ingrese: ")
-        if data == "q": break
-        prueba(data)
-        print(resultado_lexema)
-        """
-
-        tok = analizador.token()
-        if not tok : break
-        print (tok)
+        tkn = analizadorLexico.token()
+        if not tkn : break
+        print (tkn)

@@ -5,12 +5,10 @@
     Linea 2
 ***
 :: :-:
-OCUQ if
+OCUQ if 
 NOCUQ
-"Hola"
-FUN
-fun
-1a
-
-
-
+"Hola" cadena
+FUN fun
+suma :: 1 - 12
+DEVOL
+1var .
