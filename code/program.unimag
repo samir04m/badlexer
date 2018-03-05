@@ -1,0 +1,22 @@
+
+<<< Esto es para imprimir o mostrar en consola >>>
+_most "Hello world!!!"
+
+<<< Esto es para recibir entrada por consola >>>
+>_var :: _obt()
+
+<<< Esto es un condicional >>>
+ocoq >_var :: 18 ent
+
+    <<< Esto es un ciclo while >>>
+    repet >_var < 21 hac
+        >_var :: >_var + 1
+    f>
+
+nocoq
+    ocoq >_var > 18 ent
+        _most "You're of age"  
+    nocoq
+        _most "You're not of age"
+    f> 
+f>
